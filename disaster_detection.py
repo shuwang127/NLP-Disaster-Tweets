@@ -35,7 +35,7 @@ def main():
     # get keywords and vocabulary from training data.
     dList = CreateVocabulary(dataTrain, dataTest)
     # demo
-    demo(dataTrain, dataTest, dList, 'Stem', 'TFIDF', 'NaiveBayes')
+    demo(dataTrain, dataTest, dList, 'Stem', 'Frequency', 'NaiveBayes')
     return
 
 def demo(dataTrain, dataTest, dList, typeStem, typeFeat, method):
@@ -51,11 +51,13 @@ def demo(dataTrain, dataTest, dList, typeStem, typeFeat, method):
         return
     print('[Demo] Data: %s | Feature: %s | Classifier: %s.' % (typeStem, typeFeat, method))
     # extract training features and labels.
-    ExtractFeatures(dataTrain, dList, 'Train', typeStem, typeFeat)
+    featTrain, labelTrain = ExtractFeatures(dataTrain, dList, 'Train', typeStem, typeFeat)
+    print('[Info] Get %s training features and labels.' % (typeFeat))
     # train the model.
     # model = NaiveBayesTrain(featTrain, labelTrain)
     # extract testing features and labels.
-    # featTest, labelTest = ExtractFeatures(dataTest, 'test')
+    ExtractFeatures(dataTest, dList, 'Test', typeStem, typeFeat)
+    print('[Info] Get %s testing features and labels.' % (typeFeat))
     # test the model.
     # predTest = NaiveBayesTest(model, featTest)
     # evaluate.
@@ -75,7 +77,7 @@ def ExtractFeatures(dataset, dList, typeSet, typeStem, typeFeat):
     vocab = list(set(list(chain.from_iterable(dList['listTrain' + typeStem]))))
     V = len(vocab)
     vocabDict = dict(zip(vocab, range(V)))
-    print('[Info] Load %d vocabulary words.' % (V))
+    print('[Info] Load %d %s vocabulary words.' % (V, typeStem))
 
     label = list(dataset['target'])
     features = np.zeros((D, V))
@@ -94,45 +96,49 @@ def ExtractFeatures(dataset, dList, typeSet, typeStem, typeFeat):
                     features[ind][vocabDict[item]] = 1
     # get the feature matrix (TFIDF):
     if 'TFIDF' == typeFeat:
-        # get freq and bin features.
-        termFreq = np.zeros((D, V))
-        termBin = np.zeros((D, V))
-        for ind, doc in enumerate(data):
-            for item in doc:
-                if item in vocabDict:
-                    termFreq[ind][vocabDict[item]] += 1
-                    termBin[ind][vocabDict[item]] = 1
-        # get tf (1+log10)
-        tf = np.zeros((D, V))
-        for ind in range(D):
-            for i in range(V):
-                if termFreq[ind][i] > 0:
-                    tf[ind][i] = 1 + math.log(termFreq[ind][i], 10)
-        del termFreq
-        # find idf
-        if 'Train' == typeSet:
-            # get df
-            df = np.zeros((V, 1))
+        if os.path.exists(tempPath + '/tfidf_' + typeSet + typeStem + '.npy'):
+            features = np.load(tempPath + '/tfidf_' + typeSet + typeStem + '.npy')
+        else:
+            # get freq and bin features.
+            termFreq = np.zeros((D, V))
+            termBin = np.zeros((D, V))
+            for ind, doc in enumerate(data):
+                for item in doc:
+                    if item in vocabDict:
+                        termFreq[ind][vocabDict[item]] += 1
+                        termBin[ind][vocabDict[item]] = 1
+            # get tf (1+log10)
+            tf = np.zeros((D, V))
             for ind in range(D):
                 for i in range(V):
-                    df[i] += termBin[ind][i]
-            # get idf (log10(D/df))
-            idf = np.zeros((V, 1))
-            for i in range(V):
-                if df[i] > 0:
-                    idf[i] = math.log(D, 10) - math.log(df[i], 10)
-            del df
-            np.save(tempPath + '/idf_' + typeStem + '.npy', idf)
-        else:
-            # if 'Test' == dataset, get idf from arguments.
-            idf = np.load(tempPath + '/idf_' + typeStem + '.npy')
-        del termBin
-        # get tfidf
-        for ind in range(D):
-            for i in range(V):
-                features[ind][i] = tf[ind][i] * idf[i]
-        np.save(tempPath + '/tfidf_' + typeSet + typeStem + '.npy')
-
+                    if termFreq[ind][i] > 0:
+                        tf[ind][i] = 1 + math.log(termFreq[ind][i], 10)
+            del termFreq
+            # find idf
+            if os.path.exists(tempPath + '/idf_' + typeStem + '.npy'):
+                idf = np.load(tempPath + '/idf_' + typeStem + '.npy')
+            elif 'Train' == typeSet:
+                # get df
+                df = np.zeros((V, 1))
+                for ind in range(D):
+                    for i in range(V):
+                        df[i] += termBin[ind][i]
+                # get idf (log10(D/df))
+                idf = np.zeros((V, 1))
+                for i in range(V):
+                    if df[i] > 0:
+                        idf[i] = math.log(D, 10) - math.log(df[i], 10)
+                del df
+                np.save(tempPath + '/idf_' + typeStem + '.npy', idf)
+            else:
+                print('[Error] Need file: %s/idf_%s.npy to process test data!' % (tempPath, typeStem))
+                return
+            del termBin
+            # get tfidf
+            for ind in range(D):
+                for i in range(V):
+                    features[ind][i] = tf[ind][i] * idf[i]
+            np.save(tempPath + '/tfidf_' + typeSet + typeStem + '.npy', features)
     return features, label
 
 def ReadCsvData():
