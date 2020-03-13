@@ -62,11 +62,10 @@ def demo(dataTrain, dataTest, dList, typeStem, typeFeat, method):
     featTest, labelTest = ExtractFeatures(dataTest, dList, 'Test', typeStem, typeFeat)
     print('[Info] Get %d \'%s\' testing features (dim:%d) and labels (dim:1).' % (len(featTest), typeFeat, len(featTest[0])))
     # test the model.
-    #if 'NaiveBayes' == method:
-    #    predTest = NaiveBayesTest(prior, likelihood, featTest)
+    if 'NaiveBayes' == method:
+        predTest = NaiveBayesTest(prior, likelihood, featTest)
     # evaluate.
-    # accuracy, confusion = OutputEval(predTest, labelTest)
-    # test the data
+    accuracy, confusion = OutputEval(predTest, labelTest)
     return
 
 def ReadCsvData():
@@ -325,6 +324,53 @@ def NaiveBayesTrain(features, labels):
     # get the log likelihood
     likelihood = GetLogLikelihood(features, labels)
     return prior, likelihood
+
+def NaiveBayesTest(prior, likelihood, featTest):
+    # get V and D.
+    V = len(featTest[0])
+    D = len(featTest)
+    cls = 2
+    # get pred(D, cls) matrix and predictions(D, 1).
+    pred = np.zeros((D, cls))
+    predictions = np.zeros((D, 1))
+    for ind in range(D):
+        for lb in range(cls):
+            pred[ind][lb] += prior[lb]
+            for i in range(V):
+                pred[ind][lb] += likelihood[lb][i] * featTest[ind][i]
+        predictions[ind] = list(pred[ind]).index(max(pred[ind]))
+    return predictions
+
+def OutputEval(predictions, labels, typeStem, typeFeat, method):
+    # evaluate the predictions with gold labels, and get accuracy and confusion matrix.
+    def Evaluation(predictions, labels):
+        D = len(labels)
+        cls = 2
+        # get confusion matrix.
+        confusion = np.zeros((cls, cls))
+        for ind in range(D):
+            nRow = int(predictions[ind][0])
+            nCol = int(labels[ind][0])
+            confusion[nRow][nCol] += 1
+        # get accuracy.
+        accuracy = 0
+        for ind in range(cls):
+            accuracy += confusion[ind][ind]
+        accuracy /= D
+        return accuracy, confusion
+
+    # get accuracy and confusion matrix.
+    accuracy, confusion = Evaluation(predictions, labels)
+    # output on screen and to file.
+    print('-------------------------------------------')
+    print(typeStem + ' | ' + typeFeat + ' | ' + method)
+    print('accuracy : %.2f%%' % (accuracy * 100))
+    print('confusion matrix :      (actual)')
+    print('                    Neg         Pos')
+    print('(predicted) Neg     %-4d(TN)    %-4d(FN)' % (confusion[0][0], confusion[0][1]))
+    print('            Pos     %-4d(FP)    %-4d(TP)' % (confusion[1][0], confusion[1][1]))
+    print('-------------------------------------------')
+    return accuracy, confusion
 
 if __name__ == "__main__":
     main()
