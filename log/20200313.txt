@@ -1,0 +1,284 @@
+-- AIT726 Project from Julia Jeng, Shu Wang, and Arman Anwar --
+[Info] Load 7613 training samples from ./drive/My Drive/Colab Notebooks//data//train.csv.
+[Info] Load 3263 testing samples from ./drive/My Drive/Colab Notebooks//data//test_labeled.csv.
+[Info] Load text list (noStem/Stem) of train/test set from ./drive/My Drive/Colab Notebooks//temp//list.npz.
+[Demo] ------ Data: NoStem | Feature: Frequency | Classifier: NaiveBayes ------
+[Info] Load 15769 'NoStem' vocabulary words.
+[Info] Get 7613 'Frequency' training features (dim:15993) and labels (dim:1).
+[Info] Load 15769 'NoStem' vocabulary words.
+[Info] Get 3263 'Frequency' testing features (dim:15993) and labels (dim:1).
+[Info] Naive Bayes classifier training done!
+[Info] Naive Bayes classifier testing done!
+       -------------------------------------------
+       NoStem | Frequency | NaiveBayes
+       accuracy : 79.56%
+       confusion matrix :      (actual)
+                           Neg         Pos
+       (predicted) Neg     1617(TN)    423 (FN)
+                   Pos     244 (FP)    979 (TP)
+       -------------------------------------------
+[Demo] ------ Data: NoStem | Feature: Binary | Classifier: NaiveBayes ------
+[Info] Load 15769 'NoStem' vocabulary words.
+[Info] Get 7613 'Binary' training features (dim:15993) and labels (dim:1).
+[Info] Load 15769 'NoStem' vocabulary words.
+[Info] Get 3263 'Binary' testing features (dim:15993) and labels (dim:1).
+[Info] Naive Bayes classifier training done!
+[Info] Naive Bayes classifier testing done!
+       -------------------------------------------
+       NoStem | Binary | NaiveBayes
+       accuracy : 79.59%
+       confusion matrix :      (actual)
+                           Neg         Pos
+       (predicted) Neg     1617(TN)    422 (FN)
+                   Pos     244 (FP)    980 (TP)
+       -------------------------------------------
+[Demo] ------ Data: NoStem | Feature: TFIDF | Classifier: NaiveBayes ------
+[Info] Load 15769 'NoStem' vocabulary words.
+[Info] Get 7613 'TFIDF' training features (dim:15993) and labels (dim:1).
+[Info] Load 15769 'NoStem' vocabulary words.
+[Info] Get 3263 'TFIDF' testing features (dim:15993) and labels (dim:1).
+[Info] Naive Bayes classifier training done!
+[Info] Naive Bayes classifier testing done!
+       -------------------------------------------
+       NoStem | TFIDF | NaiveBayes
+       accuracy : 77.93%
+       confusion matrix :      (actual)
+                           Neg         Pos
+       (predicted) Neg     1562(TN)    421 (FN)
+                   Pos     299 (FP)    981 (TP)
+       -------------------------------------------
+[Demo] ------ Data: Stem | Feature: Frequency | Classifier: NaiveBayes ------
+[Info] Load 11811 'Stem' vocabulary words.
+[Info] Get 7613 'Frequency' training features (dim:12035) and labels (dim:1).
+[Info] Load 11811 'Stem' vocabulary words.
+[Info] Get 3263 'Frequency' testing features (dim:12035) and labels (dim:1).
+[Info] Naive Bayes classifier training done!
+[Info] Naive Bayes classifier testing done!
+       -------------------------------------------
+       Stem | Frequency | NaiveBayes
+       accuracy : 79.01%
+       confusion matrix :      (actual)
+                           Neg         Pos
+       (predicted) Neg     1594(TN)    418 (FN)
+                   Pos     267 (FP)    984 (TP)
+       -------------------------------------------
+[Demo] ------ Data: Stem | Feature: Binary | Classifier: NaiveBayes ------
+[Info] Load 11811 'Stem' vocabulary words.
+[Info] Get 7613 'Binary' training features (dim:12035) and labels (dim:1).
+[Info] Load 11811 'Stem' vocabulary words.
+[Info] Get 3263 'Binary' testing features (dim:12035) and labels (dim:1).
+[Info] Naive Bayes classifier training done!
+[Info] Naive Bayes classifier testing done!
+       -------------------------------------------
+       Stem | Binary | NaiveBayes
+       accuracy : 79.04%
+       confusion matrix :      (actual)
+                           Neg         Pos
+       (predicted) Neg     1596(TN)    419 (FN)
+                   Pos     265 (FP)    983 (TP)
+       -------------------------------------------
+[Demo] ------ Data: Stem | Feature: TFIDF | Classifier: NaiveBayes ------
+[Info] Load 11811 'Stem' vocabulary words.
+[Info] Get 7613 'TFIDF' training features (dim:12035) and labels (dim:1).
+[Info] Load 11811 'Stem' vocabulary words.
+[Info] Get 3263 'TFIDF' testing features (dim:12035) and labels (dim:1).
+[Info] Naive Bayes classifier training done!
+[Info] Naive Bayes classifier testing done!
+       -------------------------------------------
+       Stem | TFIDF | NaiveBayes
+       accuracy : 78.76%
+       confusion matrix :      (actual)
+                           Neg         Pos
+       (predicted) Neg     1581(TN)    413 (FN)
+                   Pos     280 (FP)    989 (TP)
+       -------------------------------------------
+[Demo] ------ Data: NoStem | Feature: Frequency | Classifier: Logistic ------
+[Info] Load 15769 'NoStem' vocabulary words.
+[Info] Get 7613 'Frequency' training features (dim:15993) and labels (dim:1).
+[Info] Load 15769 'NoStem' vocabulary words.
+[Info] Get 3263 'Frequency' testing features (dim:15993) and labels (dim:1).
+[Para] Learning Rate = 0.10, Iteration Number = 10000.
+[Epoch 100] Loss: 0.283, TrainAcc: 61.894%, TestAcc: 61.998%
+[Epoch 200] Loss: 0.225, TrainAcc: 69.972%, TestAcc: 67.944%
+[Epoch 300] Loss: 0.196, TrainAcc: 73.637%, TestAcc: 70.457%
+[Epoch 400] Loss: 0.177, TrainAcc: 76.317%, TestAcc: 72.479%
+[Epoch 500] Loss: 0.164, TrainAcc: 78.405%, TestAcc: 73.889%
+[Epoch 600] Loss: 0.153, TrainAcc: 80.100%, TestAcc: 74.563%
+[Epoch 700] Loss: 0.145, TrainAcc: 81.479%, TestAcc: 75.084%
+[Epoch 800] Loss: 0.138, TrainAcc: 82.504%, TestAcc: 75.575%
+[Epoch 900] Loss: 0.132, TrainAcc: 83.673%, TestAcc: 76.126%
+[Epoch 1000] Loss: 0.127, TrainAcc: 84.356%, TestAcc: 76.555%
+[Epoch 1100] Loss: 0.122, TrainAcc: 85.262%, TestAcc: 76.770%
+[Epoch 1200] Loss: 0.118, TrainAcc: 85.840%, TestAcc: 76.831%
+[Epoch 1300] Loss: 0.114, TrainAcc: 86.457%, TestAcc: 77.015%
+[Epoch 1400] Loss: 0.111, TrainAcc: 86.957%, TestAcc: 77.107%
+[Epoch 1500] Loss: 0.108, TrainAcc: 87.351%, TestAcc: 77.567%
+[Epoch 1600] Loss: 0.105, TrainAcc: 87.876%, TestAcc: 77.444%
+[Info] Logistic Regression classifier training done!
+[Info] Logistic Regression classifier testing done!
+       -------------------------------------------
+       NoStem | Frequency | Logistic
+       accuracy : 77.57%
+       confusion matrix :      (actual)
+                           Neg         Pos
+       (predicted) Neg     1687(TN)    558 (FN)
+                   Pos     174 (FP)    844 (TP)
+       -------------------------------------------
+[Demo] ------ Data: NoStem | Feature: Binary | Classifier: Logistic ------
+[Info] Load 15769 'NoStem' vocabulary words.
+[Info] Get 7613 'Binary' training features (dim:15993) and labels (dim:1).
+[Info] Load 15769 'NoStem' vocabulary words.
+[Info] Get 3263 'Binary' testing features (dim:15993) and labels (dim:1).
+[Para] Learning Rate = 0.10, Iteration Number = 10000.
+[Epoch 100] Loss: 0.267, TrainAcc: 63.168%, TestAcc: 62.764%
+[Epoch 200] Loss: 0.211, TrainAcc: 71.036%, TestAcc: 69.047%
+[Epoch 300] Loss: 0.186, TrainAcc: 74.662%, TestAcc: 71.407%
+[Epoch 400] Loss: 0.169, TrainAcc: 77.302%, TestAcc: 72.571%
+[Epoch 500] Loss: 0.157, TrainAcc: 79.167%, TestAcc: 73.491%
+[Epoch 600] Loss: 0.148, TrainAcc: 80.586%, TestAcc: 74.594%
+[Epoch 700] Loss: 0.140, TrainAcc: 81.886%, TestAcc: 75.238%
+[Epoch 800] Loss: 0.134, TrainAcc: 83.016%, TestAcc: 75.912%
+[Epoch 900] Loss: 0.129, TrainAcc: 83.883%, TestAcc: 76.126%
+[Epoch 1000] Loss: 0.124, TrainAcc: 84.645%, TestAcc: 76.157%
+[Epoch 1100] Loss: 0.120, TrainAcc: 85.262%, TestAcc: 76.402%
+[Epoch 1200] Loss: 0.117, TrainAcc: 85.748%, TestAcc: 76.494%
+[Epoch 1300] Loss: 0.113, TrainAcc: 86.313%, TestAcc: 76.647%
+[Epoch 1400] Loss: 0.110, TrainAcc: 86.865%, TestAcc: 77.076%
+[Epoch 1500] Loss: 0.107, TrainAcc: 87.337%, TestAcc: 77.230%
+[Epoch 1600] Loss: 0.105, TrainAcc: 87.758%, TestAcc: 77.230%
+[Epoch 1700] Loss: 0.102, TrainAcc: 88.112%, TestAcc: 77.291%
+[Info] Logistic Regression classifier training done!
+[Info] Logistic Regression classifier testing done!
+       -------------------------------------------
+       NoStem | Binary | Logistic
+       accuracy : 77.35%
+       confusion matrix :      (actual)
+                           Neg         Pos
+       (predicted) Neg     1689(TN)    567 (FN)
+                   Pos     172 (FP)    835 (TP)
+       -------------------------------------------
+[Demo] ------ Data: NoStem | Feature: TFIDF | Classifier: Logistic ------
+[Info] Load 15769 'NoStem' vocabulary words.
+[Info] Get 7613 'TFIDF' training features (dim:15993) and labels (dim:1).
+[Info] Load 15769 'NoStem' vocabulary words.
+[Info] Get 3263 'TFIDF' testing features (dim:15993) and labels (dim:1).
+[Para] Learning Rate = 0.10, Iteration Number = 10000.
+[Epoch 100] Loss: 0.567, TrainAcc: 42.966%, TestAcc: 42.967%
+[Epoch 200] Loss: 0.550, TrainAcc: 43.583%, TestAcc: 43.825%
+[Epoch 300] Loss: 0.428, TrainAcc: 52.292%, TestAcc: 54.030%
+[Epoch 400] Loss: 0.331, TrainAcc: 62.459%, TestAcc: 62.948%
+[Epoch 500] Loss: 0.269, TrainAcc: 70.143%, TestAcc: 67.882%
+[Epoch 600] Loss: 0.235, TrainAcc: 74.320%, TestAcc: 69.537%
+[Epoch 700] Loss: 0.210, TrainAcc: 77.565%, TestAcc: 70.886%
+[Epoch 800] Loss: 0.194, TrainAcc: 79.588%, TestAcc: 71.897%
+[Epoch 900] Loss: 0.181, TrainAcc: 81.151%, TestAcc: 72.326%
+[Epoch 1000] Loss: 0.171, TrainAcc: 82.254%, TestAcc: 72.755%
+[Epoch 1100] Loss: 0.162, TrainAcc: 83.305%, TestAcc: 73.276%
+[Epoch 1200] Loss: 0.155, TrainAcc: 84.224%, TestAcc: 73.521%
+[Epoch 1300] Loss: 0.149, TrainAcc: 84.842%, TestAcc: 73.950%
+[Epoch 1400] Loss: 0.144, TrainAcc: 85.472%, TestAcc: 74.257%
+[Epoch 1500] Loss: 0.140, TrainAcc: 85.919%, TestAcc: 74.441%
+[Info] Logistic Regression classifier training done!
+[Info] Logistic Regression classifier testing done!
+       -------------------------------------------
+       NoStem | TFIDF | Logistic
+       accuracy : 74.50%
+       confusion matrix :      (actual)
+                           Neg         Pos
+       (predicted) Neg     1586(TN)    557 (FN)
+                   Pos     275 (FP)    845 (TP)
+       -------------------------------------------
+[Demo] ------ Data: Stem | Feature: Frequency | Classifier: Logistic ------
+[Info] Load 11811 'Stem' vocabulary words.
+[Info] Get 7613 'Frequency' training features (dim:12035) and labels (dim:1).
+[Info] Load 11811 'Stem' vocabulary words.
+[Info] Get 3263 'Frequency' testing features (dim:12035) and labels (dim:1).
+[Para] Learning Rate = 0.10, Iteration Number = 10000.
+[Epoch 100] Loss: 0.275, TrainAcc: 62.091%, TestAcc: 62.550%
+[Epoch 200] Loss: 0.211, TrainAcc: 71.141%, TestAcc: 69.261%
+[Epoch 300] Loss: 0.182, TrainAcc: 75.555%, TestAcc: 71.407%
+[Epoch 400] Loss: 0.164, TrainAcc: 78.064%, TestAcc: 72.816%
+[Epoch 500] Loss: 0.152, TrainAcc: 79.982%, TestAcc: 74.318%
+[Epoch 600] Loss: 0.143, TrainAcc: 81.689%, TestAcc: 74.808%
+[Epoch 700] Loss: 0.136, TrainAcc: 82.793%, TestAcc: 75.513%
+[Epoch 800] Loss: 0.130, TrainAcc: 83.725%, TestAcc: 75.881%
+[Epoch 900] Loss: 0.125, TrainAcc: 84.671%, TestAcc: 76.463%
+[Epoch 1000] Loss: 0.121, TrainAcc: 85.236%, TestAcc: 76.892%
+[Epoch 1100] Loss: 0.117, TrainAcc: 85.893%, TestAcc: 77.046%
+[Epoch 1200] Loss: 0.114, TrainAcc: 86.444%, TestAcc: 77.168%
+[Epoch 1300] Loss: 0.111, TrainAcc: 86.904%, TestAcc: 77.352%
+[Epoch 1400] Loss: 0.108, TrainAcc: 87.390%, TestAcc: 77.567%
+[Epoch 1500] Loss: 0.105, TrainAcc: 87.705%, TestAcc: 77.628%
+[Info] Logistic Regression classifier training done!
+[Info] Logistic Regression classifier testing done!
+       -------------------------------------------
+       Stem | Frequency | Logistic
+       accuracy : 77.69%
+       confusion matrix :      (actual)
+                           Neg         Pos
+       (predicted) Neg     1654(TN)    521 (FN)
+                   Pos     207 (FP)    881 (TP)
+       -------------------------------------------
+[Demo] ------ Data: Stem | Feature: Binary | Classifier: Logistic ------
+[Info] Load 11811 'Stem' vocabulary words.
+[Info] Get 7613 'Binary' training features (dim:12035) and labels (dim:1).
+[Info] Load 11811 'Stem' vocabulary words.
+[Info] Get 3263 'Binary' testing features (dim:12035) and labels (dim:1).
+[Para] Learning Rate = 0.10, Iteration Number = 10000.
+[Epoch 100] Loss: 0.287, TrainAcc: 59.950%, TestAcc: 59.700%
+[Epoch 200] Loss: 0.214, TrainAcc: 70.380%, TestAcc: 68.250%
+[Epoch 300] Loss: 0.187, TrainAcc: 74.399%, TestAcc: 70.978%
+[Epoch 400] Loss: 0.169, TrainAcc: 76.566%, TestAcc: 72.633%
+[Epoch 500] Loss: 0.157, TrainAcc: 78.944%, TestAcc: 73.705%
+[Epoch 600] Loss: 0.148, TrainAcc: 80.428%, TestAcc: 74.655%
+[Epoch 700] Loss: 0.140, TrainAcc: 81.807%, TestAcc: 75.605%
+[Epoch 800] Loss: 0.134, TrainAcc: 82.714%, TestAcc: 75.912%
+[Epoch 900] Loss: 0.129, TrainAcc: 83.646%, TestAcc: 76.310%
+[Epoch 1000] Loss: 0.124, TrainAcc: 84.303%, TestAcc: 76.770%
+[Epoch 1100] Loss: 0.120, TrainAcc: 85.065%, TestAcc: 76.954%
+[Epoch 1200] Loss: 0.116, TrainAcc: 85.656%, TestAcc: 77.413%
+[Epoch 1300] Loss: 0.113, TrainAcc: 86.260%, TestAcc: 77.536%
+[Epoch 1400] Loss: 0.110, TrainAcc: 86.681%, TestAcc: 77.751%
+[Info] Logistic Regression classifier training done!
+[Info] Logistic Regression classifier testing done!
+       -------------------------------------------
+       Stem | Binary | Logistic
+       accuracy : 77.75%
+       confusion matrix :      (actual)
+                           Neg         Pos
+       (predicted) Neg     1659(TN)    524 (FN)
+                   Pos     202 (FP)    878 (TP)
+       -------------------------------------------
+[Demo] ------ Data: Stem | Feature: TFIDF | Classifier: Logistic ------
+[Info] Load 11811 'Stem' vocabulary words.
+[Info] Get 7613 'TFIDF' training features (dim:12035) and labels (dim:1).
+[Info] Load 11811 'Stem' vocabulary words.
+[Info] Get 3263 'TFIDF' testing features (dim:12035) and labels (dim:1).
+[Para] Learning Rate = 0.10, Iteration Number = 10000.
+[Epoch 100] Loss: 0.569, TrainAcc: 42.966%, TestAcc: 42.967%
+[Epoch 200] Loss: 0.568, TrainAcc: 43.019%, TestAcc: 43.059%
+[Epoch 300] Loss: 0.565, TrainAcc: 43.189%, TestAcc: 43.304%
+[Epoch 400] Loss: 0.557, TrainAcc: 43.702%, TestAcc: 43.610%
+[Epoch 500] Loss: 0.410, TrainAcc: 55.720%, TestAcc: 56.604%
+[Epoch 600] Loss: 0.289, TrainAcc: 68.396%, TestAcc: 66.044%
+[Epoch 700] Loss: 0.238, TrainAcc: 74.373%, TestAcc: 69.752%
+[Epoch 800] Loss: 0.213, TrainAcc: 77.538%, TestAcc: 71.437%
+[Epoch 900] Loss: 0.195, TrainAcc: 79.798%, TestAcc: 72.173%
+[Epoch 1000] Loss: 0.181, TrainAcc: 81.492%, TestAcc: 73.031%
+[Epoch 1100] Loss: 0.171, TrainAcc: 82.556%, TestAcc: 73.276%
+[Epoch 1200] Loss: 0.164, TrainAcc: 83.318%, TestAcc: 73.644%
+[Epoch 1300] Loss: 0.157, TrainAcc: 84.132%, TestAcc: 73.797%
+[Epoch 1400] Loss: 0.151, TrainAcc: 84.737%, TestAcc: 74.042%
+[Epoch 1500] Loss: 0.146, TrainAcc: 85.104%, TestAcc: 74.196%
+[Epoch 1600] Loss: 0.141, TrainAcc: 85.643%, TestAcc: 74.502%
+[Epoch 1700] Loss: 0.137, TrainAcc: 86.221%, TestAcc: 74.502%
+[Info] Logistic Regression classifier training done!
+[Info] Logistic Regression classifier testing done!
+       -------------------------------------------
+       Stem | TFIDF | Logistic
+       accuracy : 74.59%
+       confusion matrix :      (actual)
+                           Neg         Pos
+       (predicted) Neg     1559(TN)    527 (FN)
+                   Pos     302 (FP)    875 (TP)
+       -------------------------------------------
