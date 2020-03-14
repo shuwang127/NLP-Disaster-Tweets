@@ -36,7 +36,7 @@ def main():
     # get keywords and vocabulary from training data.
     dList = CreateVocabulary(dataTrain, dataTest)
     # demo
-    demo(dataTrain, dataTest, dList, 'Stem', 'Frequency', 'NaiveBayes')
+    demo(dataTrain, dataTest, dList, 'Stem', 'TFIDF', 'Logistic')
     return
 
 def demo(dataTrain, dataTest, dList, typeStem, typeFeat, method):
@@ -53,19 +53,17 @@ def demo(dataTrain, dataTest, dList, typeStem, typeFeat, method):
     print('[Demo] ------ Data: %s | Feature: %s | Classifier: %s ------' % (typeStem, typeFeat, method))
     # extract training features and labels.
     featTrain, labelTrain = ExtractFeatures(dataTrain, dList, 'Train', typeStem, typeFeat)
-    print('[Info] Get %d \'%s\' training features (dim:%d) and labels (dim:1).' % (len(featTrain), typeFeat, len(featTrain[0])))
-    # train the model.
-    if 'NaiveBayes' == method:
-        prior, likelihood = NaiveBayesTrain(featTrain, labelTrain)
-    print('[Info] %s classifier training done!' % (method))
     # extract testing features and labels.
     featTest, labelTest = ExtractFeatures(dataTest, dList, 'Test', typeStem, typeFeat)
-    print('[Info] Get %d \'%s\' testing features (dim:%d) and labels (dim:1).' % (len(featTest), typeFeat, len(featTest[0])))
-    # test the model.
+    # train and test the model.
     if 'NaiveBayes' == method:
+        prior, likelihood = NaiveBayesTrain(featTrain, labelTrain)
         predTest = NaiveBayesTest(prior, likelihood, featTest)
+    elif 'Logistic' == method:
+        w, b = LogisticTrain(featTrain, labelTrain)
+        predTest = LogisticTest(w, b, featTest)
     # evaluate.
-    accuracy, confusion = OutputEval(predTest, labelTest)
+    accuracy, confusion = OutputEval(predTest, labelTest, typeStem, typeFeat, method)
     return
 
 def ReadCsvData():
@@ -283,9 +281,10 @@ def ExtractFeatures(dataset, dList, typeSet, typeStem, typeFeat):
     featkeywd = onehot_encoder.fit_transform(featkeywd)
     features = np.hstack((features, featkeywd))
     # return features and labels
+    print('[Info] Get %d \'%s\' %sing features (dim:%d) and labels (dim:1).' % (len(features), typeFeat, typeSet.lower(), len(features[0])))
     return features, labels
 
-def NaiveBayesTrain(features, labels):
+def NaiveBayesTrain(featTrain, labelTrain):
     # define the log prior.
     def GetLogPrior(labelTrain):
         # count the number.
@@ -320,9 +319,10 @@ def NaiveBayesTrain(features, labels):
         return likelihood
 
     # get the log prior.
-    prior = GetLogPrior(labels)
+    prior = GetLogPrior(labelTrain)
     # get the log likelihood
-    likelihood = GetLogLikelihood(features, labels)
+    likelihood = GetLogLikelihood(featTrain, labelTrain)
+    print('[Info] Naive Bayes classifier training done!')
     return prior, likelihood
 
 def NaiveBayesTest(prior, likelihood, featTest):
@@ -339,6 +339,214 @@ def NaiveBayesTest(prior, likelihood, featTest):
             for i in range(V):
                 pred[ind][lb] += likelihood[lb][i] * featTest[ind][i]
         predictions[ind] = list(pred[ind]).index(max(pred[ind]))
+    print('[Info] Naive Bayes classifier testing done!')
+    return predictions
+
+class LogisticRegression(nn.Module):
+    def __init__(self, dims):
+        super(LogisticRegression, self).__init__()
+        self.L1 = nn.Linear(dims, 1)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        a1 = self.sigmoid(self.L1(x))
+        return a1
+
+def Logistic(featTrain, labelTrain):
+    # initialize network weights with uniform distribution.
+    def weight_init(m):
+        if isinstance(m, nn.Linear):
+            nn.init.uniform_(m.weight)
+            nn.init.uniform_(m.bias)
+    # calculate the train accuracy.
+    def trainAccuracy(y, yhat):
+        total = len(y)
+        cnt = 0
+        for i in range(total):
+            err = y[i] - yhat[i]
+            if abs(err) < 0.5:
+                cnt += 1
+        return cnt / total
+
+    # get V and D.
+    V = len(featTrain[0])
+    D = len(featTrain)
+
+    # shuffle the data and label.
+    index = [i for i in range(D)]
+    random.shuffle(index)
+    featTrain = featTrain[index]
+    labelTrain = labelTrain[index]
+
+    # split the train and valid set.
+    xTrain, xValid, yTrain, yValid = train_test_split(featTrain, labelTrain, test_size=0.2)
+    # convert data (x,y) into tensor.
+    xTrain = torch.Tensor(xTrain).cuda()
+    yTrain = torch.LongTensor(yTrain).cuda()
+    yTrain = yTrain.reshape(len(yTrain), 1)
+    xValid = torch.Tensor(xValid).cuda()
+    yValid = torch.LongTensor(yValid).cuda()
+    yValid = yValid.reshape(len(yValid), 1)
+
+    # convert to mini-batch form.
+    batchsize = 256
+    train = torchdata.TensorDataset(xTrain, yTrain)
+    numTrain = len(train)
+    trainloader = torchdata.DataLoader(train, batch_size=batchsize, shuffle=False)
+    valid = torchdata.TensorDataset(xValid, yValid)
+    numValid = len(valid)
+    validloader = torchdata.DataLoader(valid, batch_size=batchsize, shuffle=False)
+
+    # build the model of feed forward neural network.
+    model = FeedForwardNeuralNetwork(V)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    model.apply(weight_init)
+    model.to(device)
+    # optimizing with stochastic gradient descent.
+    optimizer = optim.SGD(model.parameters(), lr = 0.5)
+    # seting loss function as mean squared error.
+    criterion = nn.MSELoss()
+
+    # run on each epoch.
+    accList = [0]
+    for epoch in range(10000):
+        # training phase.
+        model.train()
+        lossTrain = 0
+        accTrain = 0
+        for iter, (data, label) in enumerate(trainloader):
+            data = data.to(device)
+            label = label.to(device)
+            optimizer.zero_grad()  # set the gradients to zero.
+            yhat = model.forward(data)  # get output
+            loss = criterion(label.float(), yhat)
+            loss.backward()
+            optimizer.step()
+            # statistic
+            lossTrain += loss.item()
+            preds = (yhat > 0.5).long()
+            accTrain += torch.sum(torch.eq(preds, label).long()).item()
+        lossTrain /= (iter + 1)
+        accTrain *= 100 / numTrain
+
+        # validation phase.
+        model.eval()
+        accValid = 0
+        with torch.no_grad():
+            for iter, (data, label) in enumerate(validloader):
+                data = data.to(device)
+                label = label.to(device)
+                yhat = model.forward(data)  # get output
+                # statistic
+                preds = (yhat > 0.5).long()
+                accValid += torch.sum(torch.eq(preds, label).long()).item()
+        accValid *= 100 / numValid
+        accList.append(accValid)
+
+        # output information.
+        if 0 == (epoch + 1) % 100:
+            print('[Epoch %03d] loss: %.3f, train acc: %.3f%%, valid acc: %.3f%%' % (
+            epoch + 1, lossTrain, accTrain, accValid))
+        # save the best model.
+        if accList[-1] > max(accList[0:-1]):
+            torch.save(model.state_dict(), tmpPath + '/model.pth')
+        # stop judgement.
+        if (epoch + 1) >= 100 and accList[-1] < min(accList[-100:-1]):
+            break
+
+    # load best model.
+    model.load_state_dict(torch.load(tmpPath + '/model.pth'))
+    return model
+
+
+def LogisticTrain(featTrain, labelTrain, rate = 0.1, iternum = 100, alpha = 1):
+    # forward propagation of logistic regression for a single sample.
+    def ForwardLogistic(w, b, x):
+        # get w*x+b
+        d = {'w': w, 'x': x}
+        df = pd.DataFrame(data = d)
+        df['wx'] = df['w'] * df['x']
+        s = np.sum(df["wx"]) + b
+        # S-function
+        yhat = 1 / (1 + math.exp(-s))
+        return yhat
+
+    # update w, b
+    def UpdateWeightL2(w, b, x, deltay):
+        # update w
+        dt = {'w': w, 'x': x}
+        df = pd.DataFrame(data = dt)
+        D = len(featTrain)
+        df['wnew'] = df['w'] - rate * (deltay * df['x'] + alpha * df['w'] / D)
+        w = df['wnew'].values.tolist()
+        # update b
+        b = b - rate * deltay
+        return w, b
+
+    # get the cross-entropy loss function.
+    # J(w) = (-1/m)*sum(ylog(yhat)+(1-y)log(1-yhat)) + (alpha/(2m))*sum(w^2)
+    def CrossEntropyL2(w, b, featTrain, labelTrain):
+        loss = 0
+        D = len(featTrain)
+        V = len(featTrain[0])
+        for ind in range(D):
+            x = featTrain[ind]
+            yhat = ForwardLogistic(w, b, x)
+            y = labelTrain[ind]
+            if 0 == y:
+                loss += - math.log(1-yhat)
+            else:
+                loss += - math.log(yhat)
+        loss = loss / D
+        for i in range(V):
+            loss += alpha * w[i] * w[i] / (2 * D)
+        return loss
+
+    # print the parameters.
+    print('[Para] LearningRate = %.2f, IterNum = %d, RegAlpha = %.2f' % (rate, iternum, alpha))
+    # get V and D.
+    V = len(featTrain[0])
+    D = len(featTrain)
+
+    # initialize the weights and bias.
+    w = np.zeros(V)
+    b = 0
+    # train the model
+    for iter in range(iternum):
+        # debug per 1000 iterations.
+        if 0 == (iter % 5):  # output_iteration
+            loss = CrossEntropyL2(w, b, featTrain, labelTrain)
+            print('iter %05d : loss %.4f' % (iter, loss))
+            if loss < 0.05:  # threshold
+                return w, b
+        # select a sample randomly.
+        ind = random.randint(0, D - 1)
+        x = featTrain[ind]
+        # calculate yhat and y.
+        yhat = ForwardLogistic(w, b, x)
+        y = labelTrain[ind]
+        # update model parameters.
+        w, b = UpdateWeightL2(w, b, x, yhat - y)
+    return w, b
+
+def LogisticTest(w, b, featTest):
+    # prediction of logistic regression for a single sample.
+    def PredictLogistic(w, b, x):
+        # get w*x+b
+        d = {'w': w, 'x': x}
+        df = pd.DataFrame(data=d)
+        df['wx'] = df['w'] * df['x']
+        s = np.sum(df["wx"]) + b
+        # S-function
+        yhat = 1 / (1 + math.exp(-s))
+        pred = 1 if (yhat > 0.5) else 0
+        return pred
+
+    # get predictions for testing samples with model parameters.
+    D = len(featTest)
+    predictions = np.zeros(D)
+    for ind in range(D):
+        predictions[ind] = PredictLogistic(w, b, featTest[ind])
     return predictions
 
 def OutputEval(predictions, labels, typeStem, typeFeat, method):
@@ -362,14 +570,14 @@ def OutputEval(predictions, labels, typeStem, typeFeat, method):
     # get accuracy and confusion matrix.
     accuracy, confusion = Evaluation(predictions, labels)
     # output on screen and to file.
-    print('-------------------------------------------')
-    print(typeStem + ' | ' + typeFeat + ' | ' + method)
-    print('accuracy : %.2f%%' % (accuracy * 100))
-    print('confusion matrix :      (actual)')
-    print('                    Neg         Pos')
-    print('(predicted) Neg     %-4d(TN)    %-4d(FN)' % (confusion[0][0], confusion[0][1]))
-    print('            Pos     %-4d(FP)    %-4d(TP)' % (confusion[1][0], confusion[1][1]))
-    print('-------------------------------------------')
+    print('       -------------------------------------------')
+    print('       ' + typeStem + ' | ' + typeFeat + ' | ' + method)
+    print('       accuracy : %.2f%%' % (accuracy * 100))
+    print('       confusion matrix :      (actual)')
+    print('                           Neg         Pos')
+    print('       (predicted) Neg     %-4d(TN)    %-4d(FN)' % (confusion[0][0], confusion[0][1]))
+    print('                   Pos     %-4d(FP)    %-4d(TP)' % (confusion[1][0], confusion[1][1]))
+    print('       -------------------------------------------')
     return accuracy, confusion
 
 if __name__ == "__main__":
