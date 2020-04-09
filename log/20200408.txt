@@ -115,3 +115,40 @@
 [Epoch 300] Loss: 0.246, TrainAcc: 56.180%, TestAcc: 57.033%
 [Epoch 400] Loss: 0.230, TrainAcc: 58.834%, TestAcc: 57.033%
 [Epoch 500] Loss: 0.176, TrainAcc: 74.990%, TestAcc: 72.265%
+[Epoch 600] Loss: 0.135, TrainAcc: 82.688%, TestAcc: 76.249%
+[Epoch 700] Loss: 0.107, TrainAcc: 87.469%, TestAcc: 77.842%
+[Epoch 800] Loss: 0.088, TrainAcc: 90.306%, TestAcc: 78.118%
+[Epoch 900] Loss: 0.073, TrainAcc: 92.001%, TestAcc: 78.731%
+[Epoch 1000] Loss: 0.063, TrainAcc: 93.209%, TestAcc: 78.486%
+[Info] Feed Forward Neural Network classifier training done!
+[Info] Feed Forward Neural Network classifier testing done!
+       -------------------------------------------
+       Stem | Binary | FFNN
+       accuracy : 78.73%
+       confusion matrix :      (actual)
+                           Neg         Pos
+       (predicted) Neg     1655(TN)    488 (FN)
+                   Pos     206 (FP)    914 (TP)
+       -------------------------------------------
+[Demo] ------ Data: Stem | Feature: TFIDF | Classifier: FFNN ------
+[Info] Load 11811 'Stem' vocabulary words.
+[Info] Get 7613 'TFIDF' training features (dim:12035) and labels (dim:1).
+[Info] Load 11811 'Stem' vocabulary words.
+[Info] Get 3263 'TFIDF' testing features (dim:12035) and labels (dim:1).
+[Para] Learning Rate = 0.50, Iteration Number = 10000.
+[Epoch 100] Loss: 0.569, TrainAcc: 42.966%, TestAcc: 42.967%
+[Epoch 200] Loss: 0.248, TrainAcc: 54.906%, TestAcc: 57.033%
+[Epoch 300] Loss: 0.247, TrainAcc: 54.906%, TestAcc: 57.033%
+[Epoch 400] Loss: 0.247, TrainAcc: 54.959%, TestAcc: 57.033%
+[Epoch 500] Loss: 0.246, TrainAcc: 55.077%, TestAcc: 57.033%
+[Epoch 600] Loss: 0.241, TrainAcc: 54.972%, TestAcc: 57.033%
+[Info] Feed Forward Neural Network classifier training done!
+[Info] Feed Forward Neural Network classifier testing done!
+       -------------------------------------------
+       Stem | TFIDF | FFNN
+       accuracy : 57.03%
+       confusion matrix :      (actual)
+                           Neg         Pos
+       (predicted) Neg     1861(TN)    1402(FN)
+                   Pos     0   (FP)    0   (TP)
+       -------------------------------------------
