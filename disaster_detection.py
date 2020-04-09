@@ -37,12 +37,19 @@ def main():
     #demo(dataTrain, dataTest, dList, 'Stem', 'Binary', 'NaiveBayes')
     #demo(dataTrain, dataTest, dList, 'Stem', 'TFIDF', 'NaiveBayes')
     # demo Logistic
-    demo(dataTrain, dataTest, dList, 'NoStem', 'Frequency', 'Logistic')
+    #demo(dataTrain, dataTest, dList, 'NoStem', 'Frequency', 'Logistic')
     #demo(dataTrain, dataTest, dList, 'NoStem', 'Binary', 'Logistic')
     #demo(dataTrain, dataTest, dList, 'NoStem', 'TFIDF', 'Logistic')
     #demo(dataTrain, dataTest, dList, 'Stem', 'Frequency', 'Logistic')
     #demo(dataTrain, dataTest, dList, 'Stem', 'Binary', 'Logistic')
     #demo(dataTrain, dataTest, dList, 'Stem', 'TFIDF', 'Logistic')
+    # demo FFNN
+    demo(dataTrain, dataTest, dList, 'NoStem', 'Frequency', 'FFNN')
+    demo(dataTrain, dataTest, dList, 'NoStem', 'Binary', 'FFNN')
+    demo(dataTrain, dataTest, dList, 'NoStem', 'TFIDF', 'FFNN')
+    demo(dataTrain, dataTest, dList, 'Stem', 'Frequency', 'FFNN')
+    demo(dataTrain, dataTest, dList, 'Stem', 'Binary', 'FFNN')
+    demo(dataTrain, dataTest, dList, 'Stem', 'TFIDF', 'FFNN')
     return
 
 def demo(dataTrain, dataTest, dList, typeStem, typeFeat, method):
@@ -53,7 +60,7 @@ def demo(dataTrain, dataTest, dList, typeStem, typeFeat, method):
     if typeFeat not in ['Frequency', 'Binary', 'TFIDF']:
         print('[Error] Feature setting invalid!')
         return
-    if method not in ['NaiveBayes', 'Logistic']:
+    if method not in ['NaiveBayes', 'Logistic', 'FFNN']:
         print('[Error] Classifier setting invalid!')
         return
     print('[Demo] ------ Data: %s | Feature: %s | Classifier: %s ------' % (typeStem, typeFeat, method))
@@ -66,8 +73,11 @@ def demo(dataTrain, dataTest, dList, typeStem, typeFeat, method):
         prior, likelihood = NaiveBayesTrain(featTrain, labelTrain)
         predTest = NaiveBayesTest(prior, likelihood, featTest)
     elif 'Logistic' == method:
-        model = LogisticTrain(featTrain, labelTrain, featTest, labelTest)
+        model = LogisticTrain(featTrain, labelTrain, featTest, labelTest, rate=0.1)
         predTest = LogisticTest(model, featTest)
+    elif 'FFNN' == method:
+        model = FFNNTrain(featTrain, labelTrain, featTest, labelTest, rate=0.5)
+        predTest = FFNNTest(model, featTest)
     # evaluate.
     accuracy, confusion = OutputEval(predTest, labelTest, typeStem, typeFeat, method)
     return
@@ -464,6 +474,126 @@ def LogisticTest(model, featTest):
         if yhat[ind] > 0.5:
             predictions[ind][0] = 1
     print('[Info] Logistic Regression classifier testing done!')
+    return predictions
+
+class FeedForwardNeuralNetwork(nn.Module):
+    def __init__(self, dims):
+        super(FeedForwardNeuralNetwork, self).__init__()
+        self.L1 = nn.Linear(dims, 20)
+        self.L2 = nn.Linear(20, 1)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        a1 = self.sigmoid(self.L1(x))
+        a2 = self.sigmoid(self.L2(a1))
+        return a2
+
+def FFNNTrain(featTrain, labelTrain, featTest, labelTest, rate = 0.5, iternum = 10000, chknum = 200):
+    # initialize network weights with uniform distribution.
+    def weight_init(m):
+        if isinstance(m, nn.Linear):
+            nn.init.uniform_(m.weight)
+            nn.init.uniform_(m.bias)
+
+    # get vector dimension and train/test number.
+    dims = len(featTrain[0])
+    numTrain = len(featTrain)
+    numTest = len(featTest)
+
+    # shuffle the data and label.
+    index = [i for i in range(numTrain)]
+    random.shuffle(index)
+    featTrain = featTrain[index]
+    labelTrain = labelTrain[index]
+    index = [i for i in range(numTest)]
+    random.shuffle(index)
+    featTest = featTest[index]
+    labelTest = labelTest[index]
+
+    # convert data (x,y) into tensor.
+    xTrain = torch.Tensor(featTrain).cuda()
+    yTrain = torch.LongTensor(labelTrain).cuda()
+    xTest = torch.Tensor(featTest).cuda()
+    yTest = torch.LongTensor(labelTest).cuda()
+
+    # convert to mini-batch form.
+    batchsize = 256
+    train = torchdata.TensorDataset(xTrain, yTrain)
+    trainloader = torchdata.DataLoader(train, batch_size = batchsize, shuffle = False)
+    test = torchdata.TensorDataset(xTest, yTest)
+    testloader = torchdata.DataLoader(test, batch_size = batchsize, shuffle = False)
+
+    # build the model of feed forward neural network.
+    print('[Para] Learning Rate = %.2f, Iteration Number = %d.' % (rate, iternum))
+    model = FeedForwardNeuralNetwork(dims)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    model.apply(weight_init)
+    model.to(device)
+    # optimizing with stochastic gradient descent.
+    optimizer = optim.SGD(model.parameters(), lr = rate)
+    # seting loss function as mean squared error.
+    criterion = nn.MSELoss()
+
+    # run on each epoch.
+    accList = [0]
+    for epoch in range(iternum):
+        # training phase.
+        model.train()
+        lossTrain = 0
+        accTrain = 0
+        for iter, (data, label) in enumerate(trainloader):
+            data = data.to(device)
+            label = label.to(device)
+            optimizer.zero_grad()  # set the gradients to zero.
+            yhat = model.forward(data)  # get output
+            loss = criterion(label.float(), yhat)
+            loss.backward()
+            optimizer.step()
+            # statistic
+            lossTrain += loss.item()
+            preds = (yhat > 0.5).long()
+            accTrain += torch.sum(torch.eq(preds, label).long()).item()
+        lossTrain /= (iter + 1)
+        accTrain *= 100 / numTrain
+
+        # testing phase.
+        model.eval()
+        accTest = 0
+        with torch.no_grad():
+            for iter, (data, label) in enumerate(testloader):
+                data = data.to(device)
+                label = label.to(device)
+                yhat = model.forward(data)  # get output
+                # statistic
+                preds = (yhat > 0.5).long()
+                accTest += torch.sum(torch.eq(preds, label).long()).item()
+        accTest *= 100 / numTest
+        accList.append(accTest)
+
+        # output information.
+        if 0 == (epoch + 1) % chknum:
+            print('[Epoch %03d] Loss: %.3f, TrainAcc: %.3f%%, TestAcc: %.3f%%' % (epoch + 1, lossTrain, accTrain, accTest))
+        # save the best model.
+        if accList[-1] > max(accList[0:-1]):
+            torch.save(model.state_dict(), tempPath + '/model_FFNN.pth')
+        # stop judgement.
+        if (epoch + 1) >= chknum and accList[-1] < min(accList[-chknum:-1]):
+            break
+
+    # load best model.
+    model.load_state_dict(torch.load(tempPath + '/model_FFNN.pth'))
+    print('[Info] Feed Forward Neural Network classifier training done!')
+    return model
+
+def FFNNTest(model, featTest):
+    D = len(featTest)
+    x = torch.Tensor(featTest).cuda()
+    yhat = model.forward(x)
+    predictions = np.zeros((D, 1))
+    for ind in range(D):
+        if yhat[ind] > 0.5:
+            predictions[ind][0] = 1
+    print('[Info] Feed Forward Neural Network classifier testing done!')
     return predictions
 
 def OutputEval(predictions, labels, typeStem, typeFeat, method):
