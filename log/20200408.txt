@@ -21,11 +21,11 @@
 [Info] Feed Forward Neural Network classifier testing done!
        -------------------------------------------
        NoStem | Frequency | FFNN
-       accuracy : 78.30%
+       accuracy : 78.49%
        confusion matrix :      (actual)
                            Neg         Pos
-       (predicted) Neg     1646(TN)    493 (FN)
-                   Pos     215 (FP)    909 (TP)
+       (predicted) Neg     1647(TN)    488 (FN)
+                   Pos     214 (FP)    914 (TP)
        -------------------------------------------
 [Demo] ------ Data: NoStem | Feature: Binary | Classifier: FFNN ------
 [Info] Load 15769 'NoStem' vocabulary words.
@@ -52,11 +52,11 @@
 [Info] Feed Forward Neural Network classifier testing done!
        -------------------------------------------
        NoStem | Binary | FFNN
-       accuracy : 78.21%
+       accuracy : 78.42%
        confusion matrix :      (actual)
                            Neg         Pos
-       (predicted) Neg     1654(TN)    504 (FN)
-                   Pos     207 (FP)    898 (TP)
+       (predicted) Neg     1652(TN)    495 (FN)
+                   Pos     209 (FP)    907 (TP)
        -------------------------------------------
 [Demo] ------ Data: NoStem | Feature: TFIDF | Classifier: FFNN ------
 [Info] Load 15769 'NoStem' vocabulary words.
