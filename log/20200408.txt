@@ -8,22 +8,24 @@
 [Info] Load 15769 'NoStem' vocabulary words.
 [Info] Get 3263 'Frequency' testing features (dim:15993) and labels (dim:1).
 [Para] Learning Rate = 0.50, Iteration Number = 10000.
-[Epoch 100] Loss: 0.246, TrainAcc: 57.034%, TestAcc: 57.033%
-[Epoch 200] Loss: 0.240, TrainAcc: 56.522%, TestAcc: 57.033%
-[Epoch 300] Loss: 0.215, TrainAcc: 65.703%, TestAcc: 64.511%
-[Epoch 400] Loss: 0.167, TrainAcc: 76.790%, TestAcc: 72.786%
-[Epoch 500] Loss: 0.128, TrainAcc: 83.949%, TestAcc: 76.096%
-[Epoch 600] Loss: 0.103, TrainAcc: 88.020%, TestAcc: 77.689%
-[Epoch 700] Loss: 0.082, TrainAcc: 90.976%, TestAcc: 77.842%
+[Epoch 100] Loss: 0.570, TrainAcc: 42.966%, TestAcc: 42.967%
+[Epoch 200] Loss: 0.246, TrainAcc: 55.773%, TestAcc: 49.096%
+[Epoch 300] Loss: 0.239, TrainAcc: 56.312%, TestAcc: 54.919%
+[Epoch 400] Loss: 0.219, TrainAcc: 64.600%, TestAcc: 63.684%
+[Epoch 500] Loss: 0.173, TrainAcc: 76.067%, TestAcc: 71.866%
+[Epoch 600] Loss: 0.134, TrainAcc: 82.898%, TestAcc: 75.636%
+[Epoch 700] Loss: 0.106, TrainAcc: 87.416%, TestAcc: 77.107%
+[Epoch 800] Loss: 0.087, TrainAcc: 90.437%, TestAcc: 77.659%
+[Epoch 900] Loss: 0.073, TrainAcc: 92.001%, TestAcc: 78.210%
 [Info] Feed Forward Neural Network classifier training done!
 [Info] Feed Forward Neural Network classifier testing done!
        -------------------------------------------
        NoStem | Frequency | FFNN
-       accuracy : 77.93%
+       accuracy : 78.30%
        confusion matrix :      (actual)
                            Neg         Pos
-       (predicted) Neg     1674(TN)    533 (FN)
-                   Pos     187 (FP)    869 (TP)
+       (predicted) Neg     1646(TN)    493 (FN)
+                   Pos     215 (FP)    909 (TP)
        -------------------------------------------
 [Demo] ------ Data: NoStem | Feature: Binary | Classifier: FFNN ------
 [Info] Load 15769 'NoStem' vocabulary words.
@@ -33,17 +35,28 @@
 [Para] Learning Rate = 0.50, Iteration Number = 10000.
 [Epoch 100] Loss: 0.570, TrainAcc: 42.966%, TestAcc: 42.967%
 [Epoch 200] Loss: 0.570, TrainAcc: 42.966%, TestAcc: 42.967%
-[Epoch 300] Loss: 0.246, TrainAcc: 56.561%, TestAcc: 57.033%
-[Epoch 400] Loss: 0.241, TrainAcc: 56.495%, TestAcc: 57.033%
+[Epoch 300] Loss: 0.570, TrainAcc: 42.966%, TestAcc: 42.967%
+[Epoch 400] Loss: 0.570, TrainAcc: 42.966%, TestAcc: 42.967%
+[Epoch 500] Loss: 0.570, TrainAcc: 42.966%, TestAcc: 42.967%
+[Epoch 600] Loss: 0.570, TrainAcc: 42.966%, TestAcc: 42.967%
+[Epoch 700] Loss: 0.570, TrainAcc: 42.966%, TestAcc: 42.967%
+[Epoch 800] Loss: 0.570, TrainAcc: 42.966%, TestAcc: 42.967%
+[Epoch 900] Loss: 0.247, TrainAcc: 56.115%, TestAcc: 57.033%
+[Epoch 1000] Loss: 0.241, TrainAcc: 56.154%, TestAcc: 57.861%
+[Epoch 1100] Loss: 0.208, TrainAcc: 67.884%, TestAcc: 67.882%
+[Epoch 1200] Loss: 0.160, TrainAcc: 78.905%, TestAcc: 74.196%
+[Epoch 1300] Loss: 0.127, TrainAcc: 84.566%, TestAcc: 76.923%
+[Epoch 1400] Loss: 0.104, TrainAcc: 88.126%, TestAcc: 77.751%
+[Epoch 1500] Loss: 0.085, TrainAcc: 90.490%, TestAcc: 77.996%
 [Info] Feed Forward Neural Network classifier training done!
 [Info] Feed Forward Neural Network classifier testing done!
        -------------------------------------------
        NoStem | Binary | FFNN
-       accuracy : 57.03%
+       accuracy : 78.21%
        confusion matrix :      (actual)
                            Neg         Pos
-       (predicted) Neg     1861(TN)    1402(FN)
-                   Pos     0   (FP)    0   (TP)
+       (predicted) Neg     1654(TN)    504 (FN)
+                   Pos     207 (FP)    898 (TP)
        -------------------------------------------
 [Demo] ------ Data: NoStem | Feature: TFIDF | Classifier: FFNN ------
 [Info] Load 15769 'NoStem' vocabulary words.
@@ -88,21 +101,21 @@
 [Info] Load 11811 'Stem' vocabulary words.
 [Info] Get 3263 'Frequency' testing features (dim:12035) and labels (dim:1).
 [Para] Learning Rate = 0.50, Iteration Number = 10000.
-[Epoch 100] Loss: 0.570, TrainAcc: 42.966%, TestAcc: 42.967%
-[Epoch 200] Loss: 0.240, TrainAcc: 56.614%, TestAcc: 57.033%
-[Epoch 300] Loss: 0.204, TrainAcc: 68.764%, TestAcc: 68.005%
-[Epoch 400] Loss: 0.150, TrainAcc: 80.100%, TestAcc: 74.870%
-[Epoch 500] Loss: 0.116, TrainAcc: 85.669%, TestAcc: 77.444%
-[Epoch 600] Loss: 0.093, TrainAcc: 89.518%, TestAcc: 77.230%
+[Epoch 100] Loss: 0.246, TrainAcc: 56.601%, TestAcc: 57.033%
+[Epoch 200] Loss: 0.234, TrainAcc: 57.231%, TestAcc: 58.964%
+[Epoch 300] Loss: 0.199, TrainAcc: 69.775%, TestAcc: 68.863%
+[Epoch 400] Loss: 0.151, TrainAcc: 79.785%, TestAcc: 74.931%
+[Epoch 500] Loss: 0.123, TrainAcc: 85.118%, TestAcc: 77.107%
+[Epoch 600] Loss: 0.102, TrainAcc: 88.336%, TestAcc: 77.812%
 [Info] Feed Forward Neural Network classifier training done!
 [Info] Feed Forward Neural Network classifier testing done!
        -------------------------------------------
        Stem | Frequency | FFNN
-       accuracy : 77.47%
+       accuracy : 78.00%
        confusion matrix :      (actual)
                            Neg         Pos
-       (predicted) Neg     1635(TN)    509 (FN)
-                   Pos     226 (FP)    893 (TP)
+       (predicted) Neg     1651(TN)    508 (FN)
+                   Pos     210 (FP)    894 (TP)
        -------------------------------------------
 [Demo] ------ Data: Stem | Feature: Binary | Classifier: FFNN ------
 [Info] Load 11811 'Stem' vocabulary words.
@@ -136,19 +149,36 @@
 [Info] Load 11811 'Stem' vocabulary words.
 [Info] Get 3263 'TFIDF' testing features (dim:12035) and labels (dim:1).
 [Para] Learning Rate = 0.50, Iteration Number = 10000.
-[Epoch 100] Loss: 0.569, TrainAcc: 42.966%, TestAcc: 42.967%
-[Epoch 200] Loss: 0.248, TrainAcc: 54.906%, TestAcc: 57.033%
-[Epoch 300] Loss: 0.247, TrainAcc: 54.906%, TestAcc: 57.033%
-[Epoch 400] Loss: 0.247, TrainAcc: 54.959%, TestAcc: 57.033%
-[Epoch 500] Loss: 0.246, TrainAcc: 55.077%, TestAcc: 57.033%
-[Epoch 600] Loss: 0.241, TrainAcc: 54.972%, TestAcc: 57.033%
+[Epoch 100] Loss: 0.246, TrainAcc: 56.903%, TestAcc: 57.033%
+[Epoch 200] Loss: 0.246, TrainAcc: 56.640%, TestAcc: 57.033%
+[Epoch 300] Loss: 0.246, TrainAcc: 56.679%, TestAcc: 57.033%
+[Epoch 400] Loss: 0.246, TrainAcc: 56.692%, TestAcc: 57.033%
+[Epoch 500] Loss: 0.246, TrainAcc: 56.706%, TestAcc: 57.033%
+[Epoch 600] Loss: 0.245, TrainAcc: 56.719%, TestAcc: 57.033%
+[Epoch 700] Loss: 0.243, TrainAcc: 56.587%, TestAcc: 57.033%
+[Epoch 800] Loss: 0.240, TrainAcc: 56.561%, TestAcc: 57.033%
+[Epoch 900] Loss: 0.236, TrainAcc: 56.522%, TestAcc: 57.033%
+[Epoch 1000] Loss: 0.231, TrainAcc: 56.364%, TestAcc: 57.033%
+[Epoch 1100] Loss: 0.225, TrainAcc: 56.443%, TestAcc: 57.033%
+[Epoch 1200] Loss: 0.218, TrainAcc: 58.006%, TestAcc: 57.033%
+[Epoch 1300] Loss: 0.209, TrainAcc: 60.988%, TestAcc: 61.538%
+[Epoch 1400] Loss: 0.195, TrainAcc: 65.638%, TestAcc: 63.868%
+[Epoch 1500] Loss: 0.181, TrainAcc: 70.038%, TestAcc: 65.890%
+[Epoch 1600] Loss: 0.169, TrainAcc: 73.913%, TestAcc: 67.515%
+[Epoch 1700] Loss: 0.155, TrainAcc: 77.236%, TestAcc: 68.832%
+[Epoch 1800] Loss: 0.146, TrainAcc: 79.351%, TestAcc: 69.384%
+[Epoch 1900] Loss: 0.134, TrainAcc: 81.650%, TestAcc: 70.579%
+[Epoch 2000] Loss: 0.125, TrainAcc: 83.344%, TestAcc: 70.732%
+[Epoch 2100] Loss: 0.117, TrainAcc: 84.632%, TestAcc: 71.253%
+[Epoch 2200] Loss: 0.110, TrainAcc: 85.998%, TestAcc: 72.295%
+[Epoch 2300] Loss: 0.104, TrainAcc: 86.851%, TestAcc: 72.541%
 [Info] Feed Forward Neural Network classifier training done!
 [Info] Feed Forward Neural Network classifier testing done!
        -------------------------------------------
        Stem | TFIDF | FFNN
-       accuracy : 57.03%
+       accuracy : 72.76%
        confusion matrix :      (actual)
                            Neg         Pos
-       (predicted) Neg     1861(TN)    1402(FN)
-                   Pos     0   (FP)    0   (TP)
+       (predicted) Neg     1355(TN)    383 (FN)
+                   Pos     506 (FP)    1019(TP)
        -------------------------------------------
