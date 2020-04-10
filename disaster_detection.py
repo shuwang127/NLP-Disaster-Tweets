@@ -4,6 +4,7 @@ tempPath = rootPath + '/temp/'
 
 import os
 import re
+import gc
 import random
 import math
 import nltk
@@ -19,6 +20,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data as torchdata
+from sklearn.metrics import accuracy_score
 nltk.download('stopwords')
 nltk.download('punkt')
 
@@ -44,12 +46,37 @@ def main():
     #demo(dataTrain, dataTest, dList, 'Stem', 'Binary', 'Logistic')
     #demo(dataTrain, dataTest, dList, 'Stem', 'TFIDF', 'Logistic')
     # demo FFNN
-    demo(dataTrain, dataTest, dList, 'NoStem', 'Frequency', 'FFNN')
-    demo(dataTrain, dataTest, dList, 'NoStem', 'Binary', 'FFNN')
-    demo(dataTrain, dataTest, dList, 'NoStem', 'TFIDF', 'FFNN')
-    demo(dataTrain, dataTest, dList, 'Stem', 'Frequency', 'FFNN')
-    demo(dataTrain, dataTest, dList, 'Stem', 'Binary', 'FFNN')
-    demo(dataTrain, dataTest, dList, 'Stem', 'TFIDF', 'FFNN')
+    #demo(dataTrain, dataTest, dList, 'NoStem', 'Frequency', 'FFNN')
+    #demo(dataTrain, dataTest, dList, 'NoStem', 'Binary', 'FFNN')
+    #demo(dataTrain, dataTest, dList, 'NoStem', 'TFIDF', 'FFNN')
+    #demo(dataTrain, dataTest, dList, 'Stem', 'Frequency', 'FFNN')
+    #demo(dataTrain, dataTest, dList, 'Stem', 'Binary', 'FFNN')
+    #demo(dataTrain, dataTest, dList, 'Stem', 'TFIDF', 'FFNN')
+    # demo RNN
+    demoRNN(dataTrain, dataTest, dList, 'Stem', 'TextRNN')
+    return
+
+def demoRNN(dataTrain, dataTest, dList, typeStem, method):
+    # input validation.
+    if typeStem not in ['NoStem', 'Stem']:
+        print('[Error] Stemming setting invalid!')
+        return
+    if method not in ['TextRNN']:
+        print('[Error] Classifier setting invalid!')
+        return
+    print('[Demo] ------ Data: %s | Feature: WordEmbedding | Classifier: %s ------' % (typeStem, method))
+    # get word dict and embedding.
+    maxLen, wordDict = GetWordDict(dList, typeStem) # maxLen = 51, vocabNum = 14396
+    preWeights = GetEmbedding(wordDict, embedSize=128)
+    # extract training features and labels.
+    featTrain, labelTrain = GetMapping(dataTrain, dList, 'Train', typeStem, maxLen, wordDict) # numTrain = 7613
+    featTest, labelTest = GetMapping(dataTest, dList, 'Test', typeStem, maxLen, wordDict)
+    # train and test model.
+    if 'TextRNN' == method:
+        model = TextRNNTrain(featTrain, labelTrain, featTest, labelTest, preWeights, learnRate=1, maxEpoch=10000)
+        predTest, accuracy = TextRNNTest(model, featTest, labelTest)
+    # evaluate.
+    accuracy, confusion = OutputEval(predTest, labelTest, typeStem, 'WordEmbedding', method)
     return
 
 def demo(dataTrain, dataTest, dList, typeStem, typeFeat, method):
@@ -488,7 +515,7 @@ class FeedForwardNeuralNetwork(nn.Module):
         a2 = self.sigmoid(self.L2(a1))
         return a2
 
-def FFNNTrain(featTrain, labelTrain, featTest, labelTest, rate = 0.5, iternum = 10000, chknum = 200):
+def FFNNTrain(featTrain, labelTrain, featTest, labelTest, rate = 0.5, iternum = 10000, chknum = 100):
     # initialize network weights with uniform distribution.
     def weight_init(m):
         if isinstance(m, nn.Linear):
@@ -595,6 +622,210 @@ def FFNNTest(model, featTest):
             predictions[ind][0] = 1
     print('[Info] Feed Forward Neural Network classifier testing done!')
     return predictions
+
+class TextRNN(nn.Module):
+    def __init__(self, preWeights, hiddenSize=32, hiddenLayers=1):
+        super(TextRNN, self).__init__()
+        # parameters.
+        class_num = 2
+        vocabSize = preWeights.shape[0]
+        embedDim = preWeights.shape[1]   # 128
+        # Embedding Layer
+        self.embedding = nn.Embedding(num_embeddings=vocabSize, embedding_dim=embedDim)
+        self.embedding.load_state_dict({'weight': preWeights})
+        self.embedding.weight.requires_grad = True
+        # lstm Layer
+        self.lstm = nn.LSTM(input_size=embedDim, hidden_size=hiddenSize, num_layers=hiddenLayers, bidirectional=True)
+        # Fully-Connected Layer
+        self.fc = nn.Linear(hiddenSize * hiddenLayers * 2, class_num)
+        # Softmax non-linearity
+        self.softmax = nn.Softmax(dim=-1)
+
+    def forward(self, x):
+        x = self.embedding(x)       # Batch_size * Sentence_length(32) * embed_dim(128)
+        x = x.permute(1, 0, 2)      # Sentence_length(32) * Batch_size * embed_dim(128)
+        lstm_out, (h_n, c_n) = self.lstm(x)
+        # lstm_out       Sentence_length * Batch_size * (hidden_layers * 2 [bio-direct])
+        # h_n           （num_layers * 2） * Batch_size * hidden_layers
+        #feature_map = self.dropout(h_n)  # （num_layers*2） * Batch_size * hidden_layers
+        feature_map = torch.cat([h_n[i, :, :] for i in range(h_n.shape[0])], dim=1)
+        # Batch_size * (hidden_size * hidden_layers * 2)
+        final_out = self.fc(feature_map)    # Batch_size * class_num
+        return self.softmax(final_out)
+
+def GetWordDict(dList, typeStem):
+    # input validation.
+    if typeStem not in ['NoStem', 'Stem']:
+        print('[Error] Stemming setting invalid!')
+        return
+    # get listTrain and listTest.
+    listTrain = dList['listTrain' + typeStem]
+    listTest = dList['listTest' + typeStem]
+    # get vocab.
+    vocab = []
+    maxLen = 0
+    for item in listTrain:
+        vocab.extend(item)
+        maxLen = len(item) if (len(item) > maxLen) else maxLen
+    for item in listTest:
+        vocab.extend(item)
+        maxLen = len(item) if (len(item) > maxLen) else maxLen
+    vocab = list(set(vocab))
+    # word dict.
+    wordDict = {word: index for index, word in enumerate(vocab)}
+    wordDict['<pad>'] = len(wordDict)
+    #print(wordDict)
+    return maxLen, wordDict
+
+def GetMapping(dataset, dList, typeSet, typeStem, maxLen, wordDict):
+    # input validation.
+    if typeSet not in ['Train', 'Test']:
+        print('[Error] Dataset setting invalid!')
+        return
+    if typeStem not in ['NoStem', 'Stem']:
+        print('[Error] Stemming setting invalid!')
+        return
+    # get data.
+    data = dList['list' + typeSet + typeStem]
+    D = len(data)
+    # get labels.
+    labels = np.array(dataset['target']).reshape(-1, 1)
+    #
+    data2index = []
+    for sentence in data:
+        sent2index = []
+        sentence.extend('<pad>' for i in range(maxLen - len(sentence)))
+        for word in sentence:
+            sent2index.append(wordDict[word])
+        data2index.append(sent2index)
+    return np.array(data2index), np.array(labels)
+
+def GetEmbedding(wordDict, embedSize):
+    numWords = len(wordDict)
+    preWeights = np.zeros((numWords, embedSize))
+    for ind in range(numWords):
+        preWeights[ind] = np.random.normal(size=(embedSize,))
+    return preWeights
+
+def TextRNNTrain(dTrain, lTrain, dTest, lTest, preWeights, hiddenSize=32, batchsize=256, learnRate=0.1, maxEpoch=1000, perEpoch=5):
+    # tensor data processing.
+    xTrain = torch.from_numpy(dTrain).long().cuda()
+    yTrain = torch.from_numpy(lTrain).long().cuda()
+    xValid = torch.from_numpy(dTest).long().cuda()
+    yValid = torch.from_numpy(lTest).long().cuda()
+    # batch size processing.
+    train = torchdata.TensorDataset(xTrain, yTrain)
+    trainloader = torchdata.DataLoader(train, batch_size=batchsize, shuffle=False)
+    valid = torchdata.TensorDataset(xValid, yValid)
+    validloader = torchdata.DataLoader(valid, batch_size=batchsize, shuffle=False)
+
+    # build the model of recurrent neural network.
+    preWeights = torch.from_numpy(preWeights)
+    model = TextRNN(preWeights, hiddenSize=hiddenSize)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+    print('[Demo] --- RNNType: TextRNN | HiddenNodes: %d  ---' % (hiddenSize))
+    print('[Para] BatchSize=%d, LearningRate=%.4f, MaxEpoch=%d, PerEpoch=%d.' % (batchsize, learnRate, maxEpoch, perEpoch))
+    # optimizing with stochastic gradient descent.
+    optimizer = optim.Adam(model.parameters(), lr=learnRate)
+    # seting loss function as mean squared error.
+    criterion = nn.CrossEntropyLoss()
+    # memory
+    torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.enabled = True
+
+    # run on each epoch.
+    accList = [0]
+    for epoch in range(maxEpoch):
+        # training phase.
+        model.train()
+        lossTrain = 0
+        predictions = []
+        labels = []
+        for iter, (data, label) in enumerate(trainloader):
+            data = data.to(device)
+            label = label.contiguous().view(-1)
+            label = label.to(device)
+            optimizer.zero_grad()  # set the gradients to zero.
+            yhat = model.forward(data)  # get output
+            loss = criterion(yhat, label)
+            loss.backward()
+            optimizer.step()
+            # statistic
+            lossTrain += loss.item() * len(label)
+            preds = yhat.max(1)[1]
+            predictions.extend(preds.int().tolist())
+            labels.extend(label.int().tolist())
+            torch.cuda.empty_cache()
+        gc.collect()
+        torch.cuda.empty_cache()
+        lossTrain /= len(dTrain)
+        # train accuracy.
+        accTrain = accuracy_score(labels, predictions) * 100
+
+        # validation phase.
+        model.eval()
+        predictions = []
+        labels = []
+        with torch.no_grad():
+            for iter, (data, label) in enumerate(validloader):
+                data = data.to(device)
+                label = label.contiguous().view(-1)
+                label = label.to(device)
+                yhat = model.forward(data)  # get output
+                # statistic
+                preds = yhat.max(1)[1]
+                predictions.extend(preds.int().tolist())
+                labels.extend(label.int().tolist())
+                torch.cuda.empty_cache()
+        gc.collect()
+        torch.cuda.empty_cache()
+        # valid accuracy.
+        accValid = accuracy_score(labels, predictions) * 100
+        accList.append(accValid)
+
+        # output information.
+        if 0 == (epoch + 1) % perEpoch:
+            print('[Epoch %03d] loss: %.3f, train acc: %.3f%%, valid acc: %.3f%%.' % (epoch + 1, lossTrain, accTrain, accValid))
+        # save the best model.
+        if accList[-1] > max(accList[0:-1]):
+            torch.save(model.state_dict(), tempPath + '/model_TextRNN.pth')
+        # stop judgement.
+        if (epoch + 1) >= perEpoch and accList[-1] < min(accList[-perEpoch:-1]):
+            break
+
+    # load best model.
+    model.load_state_dict(torch.load(tempPath + '/model_TextRNN.pth'))
+    print('[Info] Text Recurrent Neural Network classifier training done!')
+    return model
+
+def TextRNNTest(model, dTest, lTest):
+    xTest = torch.from_numpy(dTest).long().cuda()
+    yTest = torch.from_numpy(lTest).long().cuda()
+    test = torchdata.TensorDataset(xTest, yTest)
+    testloader = torchdata.DataLoader(test, batch_size=256, shuffle=False)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # testing phase.
+    model.eval()
+    predictions = []
+    labels = []
+    with torch.no_grad():
+        for iter, (data, label) in enumerate(testloader):
+            data = data.to(device)
+            label = label.contiguous().view(-1)
+            label = label.to(device)
+            yhat = model.forward(data)  # get output
+            # statistic
+            preds = yhat.max(1)[1]
+            predictions.extend(preds.int().tolist())
+            labels.extend(label.int().tolist())
+            torch.cuda.empty_cache()
+    gc.collect()
+    torch.cuda.empty_cache()
+    # testing accuracy.
+    accuracy = accuracy_score(labels, predictions) * 100
+    predictions = [[item] for item in predictions]
+    return predictions, accuracy
 
 def OutputEval(predictions, labels, typeStem, typeFeat, method):
     # evaluate the predictions with gold labels, and get accuracy and confusion matrix.
