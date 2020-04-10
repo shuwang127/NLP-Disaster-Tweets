@@ -3,19 +3,19 @@
 [Info] Load 3263 testing samples from ./drive/My Drive/Colab Notebooks//data//test_labeled.csv.
 [Info] Load text list (noStem/Stem) of train/test set from ./drive/My Drive/Colab Notebooks//temp//list.npz.
 [Demo] ------ Data: Stem | Feature: WordEmbedding | Classifier: TextRNN ------
-[Demo] --- RNNType: TextRNN | HiddenNodes: 256  ---
+[Demo] --- RNNType: TextRNN | HiddenNodes: 64  ---
 [Para] BatchSize=256, LearningRate=0.0001, MaxEpoch=1000000, PerEpoch=10.
-[Epoch 010] loss: 0.578, train acc: 73.099%, valid acc: 70.487%.
-[Epoch 020] loss: 0.504, train acc: 81.072%, valid acc: 73.215%.
-[Epoch 030] loss: 0.471, train acc: 84.605%, valid acc: 74.287%.
-[Epoch 040] loss: 0.458, train acc: 85.866%, valid acc: 74.962%.
-[Epoch 050] loss: 0.430, train acc: 88.769%, valid acc: 74.900%.
+[Epoch 010] loss: 0.652, train acc: 63.628%, valid acc: 61.538%.
+[Epoch 020] loss: 0.564, train acc: 77.880%, valid acc: 72.786%.
+[Epoch 030] loss: 0.470, train acc: 86.024%, valid acc: 74.686%.
+[Epoch 040] loss: 0.431, train acc: 89.584%, valid acc: 76.954%.
+[Epoch 050] loss: 0.402, train acc: 92.250%, valid acc: 76.433%.
 [Info] Text Recurrent Neural Network classifier training done!
        -------------------------------------------
        Stem | WordEmbedding | TextRNN
-       accuracy : 74.96%
+       accuracy : 77.35%
        confusion matrix :      (actual)
                            Neg         Pos
-       (predicted) Neg     1570(TN)    526 (FN)
-                   Pos     291 (FP)    876 (TP)
+       (predicted) Neg     1612(TN)    490 (FN)
+                   Pos     249 (FP)    912 (TP)
        -------------------------------------------
