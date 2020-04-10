@@ -1,0 +1,21 @@
+-- AIT726 Project from Julia Jeng, Shu Wang, and Arman Anwar --
+[Info] Load 7613 training samples from ./drive/My Drive/Colab Notebooks//data//train.csv.
+[Info] Load 3263 testing samples from ./drive/My Drive/Colab Notebooks//data//test_labeled.csv.
+[Info] Load text list (noStem/Stem) of train/test set from ./drive/My Drive/Colab Notebooks//temp//list.npz.
+[Demo] ------ Data: Stem | Feature: WordEmbedding | Classifier: TextRNN ------
+[Demo] --- RNNType: TextRNN | HiddenNodes: 256  ---
+[Para] BatchSize=256, LearningRate=0.0001, MaxEpoch=1000000, PerEpoch=10.
+[Epoch 010] loss: 0.578, train acc: 73.099%, valid acc: 70.487%.
+[Epoch 020] loss: 0.504, train acc: 81.072%, valid acc: 73.215%.
+[Epoch 030] loss: 0.471, train acc: 84.605%, valid acc: 74.287%.
+[Epoch 040] loss: 0.458, train acc: 85.866%, valid acc: 74.962%.
+[Epoch 050] loss: 0.430, train acc: 88.769%, valid acc: 74.900%.
+[Info] Text Recurrent Neural Network classifier training done!
+       -------------------------------------------
+       Stem | WordEmbedding | TextRNN
+       accuracy : 74.96%
+       confusion matrix :      (actual)
+                           Neg         Pos
+       (predicted) Neg     1570(TN)    526 (FN)
+                   Pos     291 (FP)    876 (TP)
+       -------------------------------------------
